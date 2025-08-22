@@ -34,20 +34,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   function signup(email: string, password: string) {
+    if (!auth) {
+      throw new Error('Firebase auth is not initialized');
+    }
     return createUserWithEmailAndPassword(auth, email, password);
   }
 
   function login(email: string, password: string) {
+    if (!auth) {
+      throw new Error('Firebase auth is not initialized');
+    }
     return signInWithEmailAndPassword(auth, email, password);
   }
 
   function logout() {
+    if (!auth) {
+      throw new Error('Firebase auth is not initialized');
+    }
     return signOut(auth);
   }
 
   useEffect(() => {
+    if (!auth) {
+      setLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
+      setLoading(false);
+    }, (error) => {
+      console.error('Auth state change error:', error);
       setLoading(false);
     });
 
