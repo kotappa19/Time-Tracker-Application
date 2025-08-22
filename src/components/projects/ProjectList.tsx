@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
   Plus, 
@@ -22,11 +22,7 @@ export default function ProjectList() {
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
-  useEffect(() => {
-    fetchProjects();
-  }, [currentUser]);
-
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     if (!currentUser) return;
     
     try {
@@ -37,7 +33,11 @@ export default function ProjectList() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentUser]);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
 
   const handleEdit = (project: Project) => {
     setEditingProject(project);

@@ -19,8 +19,9 @@ const nextConfig: NextConfig = {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
   // Optimize for production
-  swcMinify: true,
   compress: true,
+  // Fix workspace root warning
+  outputFileTracingRoot: process.cwd(),
 };
 
 export default nextConfig;

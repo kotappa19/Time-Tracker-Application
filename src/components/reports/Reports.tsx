@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
   BarChart, 
@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import { getTimeEntries, getProjects, getTasks } from '@/lib/firestore';
 import { TimeEntry, Project, Task } from '@/types';
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, subDays } from 'date-fns';
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -40,11 +40,7 @@ export default function Reports() {
   const [exporting, setExporting] = useState(false);
   const reportRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    fetchData();
-  }, [currentUser, startDate, endDate]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!currentUser) return;
     
     try {
@@ -71,7 +67,11 @@ export default function Reports() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentUser, startDate, endDate]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleDateRangeChange = (range: 'week' | 'month' | 'custom') => {
     setDateRange(range);

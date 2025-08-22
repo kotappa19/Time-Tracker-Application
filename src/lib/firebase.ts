@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getAuth, Auth } from 'firebase/auth';
+import { getFirestore, Firestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || '',
@@ -14,8 +14,8 @@ const firebaseConfig = {
 
 // Initialize Firebase only if we have the required config
 let app;
-let auth;
-let db;
+let auth: Auth | undefined;
+let db: Firestore | undefined;
 
 try {
   // Check if we have the minimum required config

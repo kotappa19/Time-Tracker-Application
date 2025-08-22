@@ -16,9 +16,17 @@ import {
 import { db } from './firebase';
 import { Project, Task, TimeEntry, TimeLog } from '@/types';
 
+// Helper function to check if db is initialized
+const getDb = () => {
+  if (!db) {
+    throw new Error('Firebase Firestore is not initialized. Please check your configuration.');
+  }
+  return db;
+};
+
 // Projects
 export const createProject = async (project: Omit<Project, 'id' | 'createdAt'>) => {
-  const docRef = await addDoc(collection(db, 'projects'), {
+  const docRef = await addDoc(collection(getDb(), 'projects'), {
     ...project,
     createdAt: serverTimestamp(),
   });
@@ -27,7 +35,7 @@ export const createProject = async (project: Omit<Project, 'id' | 'createdAt'>) 
 
 export const getProjects = async (userId: string) => {
   const q = query(
-    collection(db, 'projects'),
+    collection(getDb(), 'projects'),
     where('createdBy', '==', userId),
     orderBy('createdAt', 'desc')
   );
@@ -40,18 +48,18 @@ export const getProjects = async (userId: string) => {
 };
 
 export const updateProject = async (id: string, updates: Partial<Project>) => {
-  const projectRef = doc(db, 'projects', id);
+  const projectRef = doc(getDb(), 'projects', id);
   await updateDoc(projectRef, updates);
 };
 
 export const deleteProject = async (id: string) => {
-  const projectRef = doc(db, 'projects', id);
+  const projectRef = doc(getDb(), 'projects', id);
   await deleteDoc(projectRef);
 };
 
 // Tasks
 export const createTask = async (task: Omit<Task, 'id' | 'createdAt'>) => {
-  const docRef = await addDoc(collection(db, 'tasks'), {
+  const docRef = await addDoc(collection(getDb(), 'tasks'), {
     ...task,
     createdAt: serverTimestamp(),
   });
@@ -59,7 +67,7 @@ export const createTask = async (task: Omit<Task, 'id' | 'createdAt'>) => {
 };
 
 export const getTasks = async (projectId?: string, userId?: string) => {
-  let q: Query = collection(db, 'tasks') as Query;
+  let q: Query = collection(getDb(), 'tasks') as Query;
   
   if (projectId) {
     q = query(q, where('projectId', '==', projectId));
@@ -81,18 +89,18 @@ export const getTasks = async (projectId?: string, userId?: string) => {
 };
 
 export const updateTask = async (id: string, updates: Partial<Task>) => {
-  const taskRef = doc(db, 'tasks', id);
+  const taskRef = doc(getDb(), 'tasks', id);
   await updateDoc(taskRef, updates);
 };
 
 export const deleteTask = async (id: string) => {
-  const taskRef = doc(db, 'tasks', id);
+  const taskRef = doc(getDb(), 'tasks', id);
   await deleteDoc(taskRef);
 };
 
 // Time Entries
 export const createTimeEntry = async (timeEntry: Omit<TimeEntry, 'id'>) => {
-  const docRef = await addDoc(collection(db, 'timeEntries'), {
+  const docRef = await addDoc(collection(getDb(), 'timeEntries'), {
     ...timeEntry,
     startTime: Timestamp.fromDate(timeEntry.startTime),
     endTime: timeEntry.endTime ? Timestamp.fromDate(timeEntry.endTime) : null,
@@ -102,7 +110,7 @@ export const createTimeEntry = async (timeEntry: Omit<TimeEntry, 'id'>) => {
 
 export const getTimeEntries = async (userId: string, taskId?: string) => {
   let q = query(
-    collection(db, 'timeEntries'),
+    collection(getDb(), 'timeEntries'),
     where('userId', '==', userId)
   );
   
@@ -122,8 +130,8 @@ export const getTimeEntries = async (userId: string, taskId?: string) => {
 };
 
 export const updateTimeEntry = async (id: string, updates: Partial<TimeEntry>) => {
-  const timeEntryRef = doc(db, 'timeEntries', id);
-  const updateData = { ...updates } as { [x: string]: any };
+  const timeEntryRef = doc(getDb(), 'timeEntries', id);
+  const updateData = { ...updates } as { [x: string]: unknown };
   
   if (updates.startTime) {
     updateData.startTime = Timestamp.fromDate(updates.startTime);
@@ -137,7 +145,7 @@ export const updateTimeEntry = async (id: string, updates: Partial<TimeEntry>) =
 
 export const getActiveTimeEntry = async (userId: string) => {
   const q = query(
-    collection(db, 'timeEntries'),
+    collection(getDb(), 'timeEntries'),
     where('userId', '==', userId),
     where('isActive', '==', true),
     limit(1)
@@ -156,7 +164,7 @@ export const getActiveTimeEntry = async (userId: string) => {
 
 // Time Logs - Simplified query to avoid complex index requirements
 export const createTimeLog = async (timeLog: Omit<TimeLog, 'id'>) => {
-  const docRef = await addDoc(collection(db, 'timeLogs'), {
+  const docRef = await addDoc(collection(getDb(), 'timeLogs'), {
     ...timeLog,
     date: Timestamp.fromDate(timeLog.date),
   });
@@ -166,7 +174,7 @@ export const createTimeLog = async (timeLog: Omit<TimeLog, 'id'>) => {
 export const getTimeLogs = async (userId: string, startDate?: Date, endDate?: Date) => {
   // Simplified query - get all logs for user and filter in memory
   const q = query(
-    collection(db, 'timeLogs'),
+    collection(getDb(), 'timeLogs'),
     where('userId', '==', userId),
     orderBy('date', 'desc')
   );

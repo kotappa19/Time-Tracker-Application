@@ -5,12 +5,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { 
   Play, 
   Pause, 
-  Square, 
-  Clock, 
-  Plus,
-  Edit,
-  Trash2,
-  Calendar,
   Save
 } from 'lucide-react';
 import { 
@@ -21,7 +15,7 @@ import {
   getTimeEntries 
 } from '@/lib/firestore';
 import { Task, TimeEntry } from '@/types';
-import { format, differenceInSeconds } from 'date-fns';
+import { format } from 'date-fns';
 
 export default function TimeTracker() {
   const { currentUser } = useAuth();
